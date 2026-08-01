@@ -1,4 +1,4 @@
-# INNOVARENA ⚡ (Beginner-Friendly Version)
+# INNOVARENA
 
 **One Platform for Every Hackathon** — a modern MERN stack project designed to help you learn full-stack development while building an innovative hackathon management platform.
 
