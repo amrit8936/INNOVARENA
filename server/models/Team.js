@@ -1,28 +1,32 @@
+// ─── models/Team.js ───────────────────────────────────────────────────────────
+// The Team MODEL represents a group of participants for a specific hackathon.
+
 import mongoose from "mongoose";
 
-// Team schema – a group of participants for a hackathon
 const teamSchema = new mongoose.Schema(
   {
+    // Name the team chooses for themselves
     teamName: { type: String, required: true },
 
-    // Leader is the person who created the team
+    // The user who created the team is the leader
     leader: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "User",   // Links to the User model
       required: true,
     },
 
-    // Array of user references (includes leader)
+    // All members of the team (an array of User references)
+    // Note: the leader is ALSO included in this array
     members: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
 
-    // Which hackathon this team is for
+    // Which hackathon this team is participating in
     hackathon: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Hackathon",
+      ref: "Hackathon", // Links to the Hackathon model
       required: true,
     },
 
-    // Organizer can approve or reject a team
+    // Status set by the organizer
     status: {
       type: String,
       enum: ["pending", "approved", "rejected"],

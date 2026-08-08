@@ -131,4 +131,30 @@ router.delete("/:id", protect, async (req, res) => {
   }
 });
 
+// PUT /api/teams/:id/transfer-leader  –  leader transfers leadership to a member
+router.put("/:id/transfer-leader", protect, async (req, res) => {
+  try {
+    const { newLeaderId } = req.body;
+    const team = await Team.findById(req.params.id);
+    if (!team) return res.status(404).json({ message: "Team not found" });
+
+    // Only the current leader can transfer
+    if (team.leader.toString() !== req.user.id) {
+      return res.status(403).json({ message: "Only the team leader can transfer leadership" });
+    }
+
+    // New leader must already be a member
+    const isMember = team.members.some((m) => m.toString() === newLeaderId);
+    if (!isMember) {
+      return res.status(400).json({ message: "New leader must already be a team member" });
+    }
+
+    team.leader = newLeaderId;
+    await team.save();
+    res.json({ message: "Leadership transferred successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 export default router;

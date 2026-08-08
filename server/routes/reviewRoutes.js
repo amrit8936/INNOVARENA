@@ -1,3 +1,7 @@
+// ─── routes/reviewRoutes.js ───────────────────────────────────────────────────
+// Handles REVIEWS — when a judge scores a submission.
+// Each review has 5 criteria (each out of 10), so max total = 50.
+
 import express from "express";
 import Review from "../models/Review.js";
 import Submission from "../models/Submission.js";
@@ -5,19 +9,30 @@ import { protect, judgeOnly } from "../middleware/auth.js";
 
 const router = express.Router();
 
+// ─────────────────────────────────────────────────────────────────────────────
 // POST /api/reviews
-// Judge submits a review for a submission
+// Judge submits scores and feedback for a submission
+// ─────────────────────────────────────────────────────────────────────────────
 router.post("/", protect, judgeOnly, async (req, res) => {
   try {
-    const { submissionId, hackathonId, innovation, technical, design, functionality, presentation, feedback } = req.body;
+    const {
+      submissionId,   // Which submission is being reviewed
+      hackathonId,    // Which hackathon it belongs to
+      innovation,     // Score out of 10
+      technical,      // Score out of 10
+      design,         // Score out of 10
+      functionality,  // Score out of 10
+      presentation,   // Score out of 10
+      feedback,       // Written comments
+    } = req.body;
 
-    // Calculate total score (sum of all 5 criteria)
+    // Calculate the total score by adding all 5 criteria
     const totalScore = innovation + technical + design + functionality + presentation;
 
-    // Create the review
+    // Create the review document in MongoDB
     const review = await Review.create({
       submission: submissionId,
-      judge: req.user.id,
+      judge: req.user.id, // req.user is set by the protect middleware
       hackathon: hackathonId,
       innovation,
       technical,
@@ -28,11 +43,12 @@ router.post("/", protect, judgeOnly, async (req, res) => {
       feedback,
     });
 
-    // Also update the submission's score and status
+    // Also update the submission itself with the score and status
+    // This makes it easy to show scores on the leaderboard without joining Review
     await Submission.findByIdAndUpdate(submissionId, {
       score: totalScore,
       feedback,
-      status: "approved",
+      status: "approved", // Mark submission as reviewed
       reviewer: req.user.id,
     });
 
@@ -42,14 +58,16 @@ router.post("/", protect, judgeOnly, async (req, res) => {
   }
 });
 
+// ─────────────────────────────────────────────────────────────────────────────
 // GET /api/reviews/hackathon/:hackathonId
-// Get all reviews for a hackathon (used for leaderboard)
+// Get all reviews for a hackathon (used to build the leaderboard)
+// ─────────────────────────────────────────────────────────────────────────────
 router.get("/hackathon/:hackathonId", async (req, res) => {
   try {
     const reviews = await Review.find({ hackathon: req.params.hackathonId })
       .populate({
         path: "submission",
-        populate: { path: "team", select: "teamName" },
+        populate: { path: "team", select: "teamName" }, // Nested populate: submission → team
       })
       .populate("judge", "name");
     res.json(reviews);
@@ -58,8 +76,10 @@ router.get("/hackathon/:hackathonId", async (req, res) => {
   }
 });
 
+// ─────────────────────────────────────────────────────────────────────────────
 // GET /api/reviews/my
-// Judge sees their own reviews
+// Judge sees all reviews they have submitted
+// ─────────────────────────────────────────────────────────────────────────────
 router.get("/my", protect, judgeOnly, async (req, res) => {
   try {
     const reviews = await Review.find({ judge: req.user.id })

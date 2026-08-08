@@ -26,6 +26,7 @@ const Hackathons = () => {
   const [search, setSearch] = useState("");
   const [filterMode, setFilterMode] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
+  const [filterReg, setFilterReg] = useState(""); // "open" | "closed" | ""
 
   useEffect(() => {
     api.get("/hackathons")
@@ -40,12 +41,14 @@ const Hackathons = () => {
     const matchSearch = h.title?.toLowerCase().includes(q) || h.theme?.toLowerCase().includes(q) || h.description?.toLowerCase().includes(q);
     const matchMode = filterMode ? h.mode === filterMode : true;
     const matchStatus = filterStatus ? h.status === filterStatus : true;
-    return matchSearch && matchMode && matchStatus;
+    const matchReg = filterReg === "open" ? h.registrationOpen === true : filterReg === "closed" ? h.registrationOpen === false : true;
+    return matchSearch && matchMode && matchStatus && matchReg;
   });
 
-  const activeFilters = [filterMode, filterStatus].filter(Boolean).length;
+  const activeFilters = [filterMode, filterStatus, filterReg].filter(Boolean).length;
 
-  const clearFilters = () => { setSearch(""); setFilterMode(""); setFilterStatus(""); };
+  const clearFilters = () => { setSearch(""); setFilterMode(""); setFilterStatus(""); setFilterReg(""); };
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -96,6 +99,18 @@ const Hackathons = () => {
             <option value="upcoming">🔵 Upcoming</option>
             <option value="ongoing">🟢 Ongoing</option>
             <option value="completed">⚫ Completed</option>
+          </select>
+
+          {/* Registration filter */}
+          <select
+            id="filter-registration"
+            value={filterReg}
+            onChange={(e) => setFilterReg(e.target.value)}
+            className="input-field py-2.5 w-auto min-w-[160px]"
+          >
+            <option value="">All Registration</option>
+            <option value="open">🟢 Reg. Open</option>
+            <option value="closed">🔴 Reg. Closed</option>
           </select>
 
           {/* Clear filters */}
