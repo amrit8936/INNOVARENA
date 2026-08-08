@@ -1,8 +1,8 @@
-# ⚡ INNOVARENA — Hackathon Management Platform
+#  INNOVARENA — Hackathon Management Platform
 
 A full-stack MERN web application for managing hackathons end-to-end — from creation and registration to judging and results.
 
-## 🚀 Tech Stack
+##  Tech Stack
 
 | Layer | Technology |
 |---|---|
@@ -14,7 +14,7 @@ A full-stack MERN web application for managing hackathons end-to-end — from cr
 
 ---
 
-## 👥 User Roles
+##  User Roles
 
 | Role | Permissions |
 |---|---|
@@ -45,7 +45,7 @@ INNOVARENA/
 
 ---
 
-## 🗄️ Database Collections
+##  Database Collections
 
 - **Users** — name, email, password (hashed), role, college, isBlocked
 - **Hackathons** — title, description, theme, mode, dates, prizes, judges, winners
@@ -56,7 +56,7 @@ INNOVARENA/
 
 ---
 
-## 📄 Pages
+##  Pages
 
 | Page | Route | Access |
 |---|---|---|
